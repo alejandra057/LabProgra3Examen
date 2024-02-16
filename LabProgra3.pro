@@ -19,7 +19,8 @@ HEADERS += \
     Menuprincipal.h \
     ctunnes.h \
     genero.h \
-    invalidarateexception.h
+    invalidarateexception.h \
+    main.h
 
 FORMS += \
     Menuprincipal.ui

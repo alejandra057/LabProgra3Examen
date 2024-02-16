@@ -1,11 +1,17 @@
 #ifndef ENUM_H
 #define ENUM_H
 
-
-class Enum
-{
+class Genero {
 public:
-    Enum();
+    enum Generos {
+        POP,
+        ROCK,
+        RAP,
+        DANCE,
+        REGGAE,
+        ELECTRONICA,
+        RANCHERA
+    };
 };
 
-#endif // ENUM_H
+#endif // GENERO_H

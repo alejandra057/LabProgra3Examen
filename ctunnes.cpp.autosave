@@ -1,0 +1,203 @@
+#include "ctunnes.h"
+#include <fstream>
+#include <iostream>
+#include <QFile>
+#include <QDataStream>
+#include <QTextStream>
+#include <stdlib.h>
+#include <genero.h>
+#include <QDate>
+#include <QDebug>
+#include <sstream>
+
+using namespace std;
+
+struct song{
+    int code;
+    QString nombre;
+    QString cantante;
+    QString genero;
+    QString duracion;
+    double precio;
+    int estrellas,reviews;
+};
+
+struct download
+{
+    int codedown;
+    QString fecha;
+    QString cancion;
+    int codesong;
+    QString cliente;
+    double precio;
+};
+
+QFile codigoarchivo("codigo.itn");
+QFile downloadarchivo("download.itn");
+QFile songsarchivo("song.itn");
+
+QDataStream readC(&codigoarchivo);
+QDataStream writeC(&codigoarchivo);
+QDataStream writeS(&songsarchivo);
+QDataStream writeD(&downloadarchivo);
+
+ctunes::ctunes() {
+    codigoarchivo.open(QIODevice::ReadWrite);
+    downloadarchivo.open(QIODevice::ReadWrite);
+    songsarchivo.open(QIODevice::ReadWrite);
+
+    qint64 size = codigoarchivo.size();
+    if(size == 0) {
+        int codecancion = 1;
+        int codedownload = 1;
+        QDataStream readC(&codigoarchivo);
+        readC << codecancion << codedownload;
+    }
+}
+
+int ctunes::getCode(long offset) {
+    codigoarchivo.seek(offset);
+    int codesong;
+    QDataStream writeC(&codigoarchivo);
+    writeC >> codesong;
+
+    codigoarchivo.seek(offset);
+    int nextcodigo = codesong + 1;
+
+    QDataStream readC(&codigoarchivo);
+    readC << nextcodigo;
+
+    return codesong;
+}
+
+void ctunes::addSong(string nombre, string cantante, Genero::Generos generoCantante, double precio,string duracion){
+    string genero;
+    if (generoCantante == Genero::POP) {
+        genero = "Pop";
+    } else if (generoCantante == Genero::ROCK) {
+        genero = "Rock";
+    } else if (generoCantante == Genero::RAP) {
+        genero = "Rap";
+    } else if (generoCantante == Genero::DANCE) {
+        genero = "Dance";
+    } else if (generoCantante == Genero::REGGAE) {
+        genero = "Raggae";
+    } else if (generoCantante == Genero::ELECTRONICA) {
+        genero = "Electronica";
+    } else if (generoCantante == Genero::RANCHERA) {
+        genero = "Ranchera";
+    }
+
+    song songs;
+    songsarchivo.seek(songsarchivo.size());
+    songs.code = getCode(0);
+    songs.nombre = QString::fromStdString(nombre);
+    songs.cantante = QString::fromStdString(cantante);
+    songs.genero = QString::fromStdString(genero);
+    songs.precio = precio;
+    songs.reviews = 0;
+    songs.estrellas = 0;
+    songs.duracion = QString::fromStdString(duracion) ;
+    writeS << songs.code << songs.nombre << songs.cantante << songs.genero << songs.precio << songs.reviews << songs.estrellas << songs.duracion;
+    codigoarchivo.flush();
+}
+
+string ctunes::infoSong(int codeSong) {
+    songsarchivo.seek(0);
+    int numerodescargas = 0;
+    string textoconcatenado;
+    bool found = false; // Variable para rastrear si se encontró la canción
+    
+    while (!songsarchivo.atEnd()) {
+        song songs;
+        writeS >> songs.code >> songs.nombre >> songs.cantante >> songs.genero >> songs.precio >> songs.reviews >> songs.estrellas >> songs.duracion;
+        
+        if (songs.code == codeSong) {
+            found = true; // Marcamos que hemos encontrado la canción
+            // Construir la cadena de información de la canción
+            string info = "Codigo: " + QString::number(songs.code).toStdString() + "\nCancion: " + songs.nombre.toStdString() + "\nCantante: " + songs.cantante.toStdString() + "\nGenero: " + songs.genero.toStdString() + "\nPrecio: " + QString::number(songs.precio).toStdString() + "\nReviews: " + QString::number(songs.reviews).toStdString() + "\nEstrellas: " + QString::number(songs.estrellas).toStdString() + "\nDuracion: " + songs.duracion.toStdString() + "\nDescargas:\n";
+            
+            // Iterar sobre las descargas correspondientes a esta canción
+            downloadarchivo.seek(0);
+            while (!downloadarchivo.atEnd()) {
+                download descarga;
+                writeD >> descarga.codedown >> descarga.fecha >> descarga.codesong >> descarga.cliente >> descarga.precio;
+                if (codeSong == descarga.codesong) {
+                    info += "Cliente: " + descarga.cliente.toStdString() + ", Fecha: " + descarga.fecha.toStdString() + "\n";
+                    numerodescargas++;
+                }
+            }
+            
+            // Agregar el número total de descargas al final de la información de la canción
+            info += "Numero total de descargas: " + QString::number(numerodescargas).toStdString() + "\n";
+            
+            // Devolver la información de la canción y las descargas
+            return info;
+        }
+    }
+    
+    if (!found) { // Si no se encontró la canción
+        return "No se encontró la canción con el código especificado.";
+    }
+}
+   
+
+
+
+
+void ctunes::reviewSong(int code, int stars) {
+    songsarchivo.seek(0);
+    while (!songsarchivo.atEnd()) {
+        qint64 pos = songsarchivo.pos();
+        song songs;
+        writeS >> songs.code >> songs.nombre >> songs.cantante >> songs.genero >> songs.precio >> songs.reviews >> songs.estrellas >> songs.duracion;
+        if (songs.code == code) {
+            if (stars >= 0 && stars <= 5) {
+                int reviewCont = songs.reviews + 1;
+                int newStars = songs.estrellas + stars;
+                //double rating = (double)newStars / reviewCont;
+                songsarchivo.seek(pos);
+                writeS << songs.code << songs.nombre << songs.cantante << songs.genero << songs.precio << reviewCont << newStars << songs.duracion;
+                songsarchivo.flush();
+                break;
+            }
+        }
+    }
+}
+
+
+bool ctunes::verificar_codigo(int codes) {
+    songsarchivo.seek(0);
+    while (!songsarchivo.atEnd()) {
+        song songs;
+        writeS >> songs.code >> songs.nombre >> songs.cantante >> songs.genero >> songs.precio >> songs.reviews >> songs.estrellas >> songs.duracion;
+        if (songs.code == codes) {
+            return true;
+        }
+    }
+    return false;
+}
+
+string ctunes::infoSong(int codeSong) {
+    songsArchivo.seek(0);
+    while (!songsArchivo.atEnd()) {
+        song songs;
+        LeerCancion >> aggCancion.code >> aggCancion.nombre >> aggCancion.cantante >> aggCancion.generoCantante
+            >> aggCancion.precio >> aggCancion.cantEstrellas >> aggCancion.reviews
+            >> aggCancion.duracion;
+        if (aggCancion.code == codeSong) {
+            string texto;
+            double estrellas = static_cast<double>(aggCancion.cantEstrellas);
+            double review= static_cast<double>(aggCancion.reviews);
+            double rating=estrellas/review;
+            texto = "Codigo: " + to_string(aggCancion.code) + "\nCancion: " + aggCancion.nombre.toStdString() + "\nCantante: "
+                    + aggCancion.cantante.toStdString() + "\nGenero: " + aggCancion.generoCantante.toStdString() + "\nPrecio: " +
+                    to_string(aggCancion.precio) + "\nReviews: " + to_string(aggCancion.reviews) + "\nEstrellas: " +
+                    to_string(aggCancion.cantEstrellas)+"\nRating: "+ to_string(rating) + "\nDuracion: " + aggCancion.duracion.toStdString();
+            return texto;
+        }
+    }
+    return "Cancion no encontrada";
+}
+
+
