@@ -86,25 +86,17 @@ void MainWindow::on_pushButton_15_pressed()
 void MainWindow::on_pushButton_11_pressed()
 {
     double precio;
-    QString precio1= ui->precio->text().simplified();
-    precio = precio1.toDouble();
-    try {
-        precio = precio1.toDouble();
-    }
-    catch (const std::exception& e) {
-        QMessageBox::warning(this, "Error", "El precio debe ser un número válido.");
-        return;
-    }
-
-    QString name1 = ui->nombre->text().simplified();
-    string name = name1.toStdString();
-    QString cantante1=ui->cantante->text().simplified();
-    string cantante = cantante1.toStdString();
-    QString genero1 = ui->genero->currentText().simplified();
-    string genero = cantante1.toStdString();
+    QString qname = ui->nombre->text().simplified();
+    string name = qname.toStdString();
+    QString qcant=ui->cantante->text().simplified();
+    string cantante = qcant.toStdString();
+    QString qgenero = ui->genero->currentText().simplified();
+    string genero = qgenero.toStdString();
+    QString qprecio = ui->precio->text().simplified();
+    precio = qprecio.toDouble();
     Genero::Generos gen;
 
-    if(name1.isEmpty() && cantante1.isEmpty() && qgenero1.isEmpty() && !precio1.isEmpty()){
+    if(!qname.isEmpty() && !qcant.isEmpty() && !qgenero.isEmpty() && !qprecio.isEmpty()){
         if(genero=="Dance"){gen=Genero::DANCE;}
         if(genero=="Electronica"){gen = Genero::ELECTRONICA;}
         if(genero=="Pop"){gen = Genero::POP;}
@@ -116,8 +108,8 @@ void MainWindow::on_pushButton_11_pressed()
         QString timeString = tiempo.toString("mm:ss");
         string duracion =timeString.toStdString();
         ctunes object;
-        object.addSong(name1,cantante1,gen,precio1,duracion);
-        QMessageBox::information(this, "Mensaje", "Canción agregada correctamente.");
+        object.addSong(name,cantante,gen,precio,duracion);
+
     }else{
         QMessageBox::warning(this, "Error", "Llene todos los campos.");
     }
@@ -159,4 +151,5 @@ void MainWindow::on_pushButton_13_pressed()
     ui->textBrowser->setText(QString::fromStdString(object.downloadSong(code,cliente)));
 
 }
+
 

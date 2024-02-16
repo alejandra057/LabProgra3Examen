@@ -102,51 +102,9 @@ void ctunes::addSong(string nombre, string cantante, Genero::Generos generoCanta
     codigoarchivo.flush();
 }
 
+
+
 string ctunes::infoSong(int codeSong) {
-    songsarchivo.seek(0);
-    int numerodescargas = 0;
-    string textoconcatenado;
-    while (!songsarchivo.atEnd()) {
-        song songs;
-        writeS >> songs.code >> songs.nombre >> songs.cantante >> songs.genero >> songs.precio >> songs.reviews >> songs.estrellas >> songs.duracion;
-        if (songs.code == codeSong) {
-            downloadarchivo.seek(0);
-            while (!downloadarchivo.atEnd()) {
-                download descarga;
-                writeD >> descarga.codedown >> descarga.fecha >> descarga.codesong >> descarga.cliente >> descarga.precio;
-                if (codeSong == descarga.codesong) {
-                    numerodescargas++;
-                    // Salir del bucle de descargas después de encontrar una coincidencia
-                    break;
-                }
-            }
-
-            return "Codigo: " + QString::number(songs.code).toStdString() + "\nCancion: " + songs.nombre.toStdString() + "\ncantante: " + songs.cantante.toStdString() + "\nGenero: " + songs.genero.toStdString() + "\nPrecio: " + QString::number(songs.precio).toStdString() + "\nreviews: " + QString::number(songs.reviews).toStdString() + "\nEstrellas: " + QString::number(songs.estrellas).toStdString() + "\nRating: " + QString::number(songs.estrellas).toStdString() + "\nNumero de descargas: " + QString::number(numerodescargas).toStdString() + "\nDuracion: " + songs.duracion.toStdString();
-        }
-    }
-    return "no se encontro";
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/*string ctunes::infoSong(int codeSong) {
     songsarchivo.seek(0);
     string textoconcatenado;
     int numerodescargas=0;
@@ -181,52 +139,6 @@ string ctunes::infoSong(int codeSong) {
     return textoconcatenado;
 }
 
-
-    string ctunes::infoSong(int codeSong) {
-        song songs;
-        int numerodescargas = 0;
-        stringstream textoconcatenado;
-
-        // Buscar la canción
-        while (writeS >> songs.code >> songs.nombre >> songs.cantante >> songs.genero >> songs.precio >> songs.reviews >> songs.estrellas >> songs.duracion) {
-            if (songs.code == codeSong) {
-                // Construir el texto de salida para la canción
-                textoconcatenado << "Codigo: " << songs.code << "\n";
-                textoconcatenado << "Cancion: " << songs.nombre << "\n";
-                textoconcatenado << "Cantante: " << songs.cantante << "\n";
-                textoconcatenado << "Genero: " << songs.genero << "\n";
-                textoconcatenado << "Precio: " << songs.precio << "\n";
-                textoconcatenado << "Reviews: " << songs.reviews << "\n";
-                textoconcatenado << "Estrellas: " << songs.estrellas << "\n";
-               // textoconcatenado << "Rating: " << calcularRating(cancionEncontrada) << "\n";
-                textoconcatenado << "Numero de descargas: " << numerodescargas << "\n";
-                textoconcatenado << "Duracion: " << songs.duracion << "\n";
-
-                // Buscar descargas relacionadas con la canción
-                downloadarchivo.seek(0);
-                download descarga;
-                while (writeD >> descarga.codedown >> descarga.fecha >> descarga.codesong >> descarga.cliente >> descarga.precio) {
-                    if (descarga.codesong == codeSong) {
-                        // Agregar información de descarga al texto
-                        textoconcatenado << "--------------------------------\n";
-                        textoconcatenado << "Codigo de descarga: " << descarga.codedown << "\n";
-                        textoconcatenado << "Fecha de descarga: " << descarga.fecha << "\n";
-                        textoconcatenado << "Codigo de la cancion: " << descarga.codesong << "\n";
-                        textoconcatenado << "Nombre Cliente: " << descarga.cliente << "\n";
-                        textoconcatenado << "Precio de compra: " << descarga.precio << "\n";
-
-                        // Incrementar contador de descargas
-                        numerodescargas++;
-                    }
-                }
-
-                return textoconcatenado.str();
-            }
-        }
-
-        return "Canción no encontrada";
-    }
-*/
 void ctunes::reviewSong(int code, int stars) {
     songsarchivo.seek(0);
     while (!songsarchivo.atEnd()) {
@@ -259,7 +171,33 @@ bool ctunes::verificar_codigo(int codes) {
     }
     return false;
 }
+/*QString ctunes::songs(string txtFile){
+    QString path = QString::fromStdString(txtFile+".txt");
+    QFile file(path);
+    QTextStream out(&file);
 
+    file.open(QIODevice::ReadWrite);
+    file.resize(0);
+
+    songsarchivo.seek(0);
+    while (!songsarchivo.atEnd()) {
+        song songs;
+        writeS >> songs.code >> songs.nombre >> songs.cantante >> songs.genero >> songs.precio >> songs.reviews >> songs.estrellas >> songs.duracion;
+        file.seek(file.size());
+        if(songs.reviews!=0){
+            out << "-CODIGO: " << songs.code << "-TITULO: " << songs.nombre << "-CANTANTE: "<< songs.cantante << "-GENERO: "<< songs.genero << "-PRECIO:" << songs.precio;
+        }else{
+            out << "-CODIGO:  " << songs.code << "-TITULO: " << songs.nombre << " -CANTANTE: "<< songs.cantante << "-GENERO: "<< songs.genero << "-PRECIO:" << songs.precio;
+        }
+    }
+    file.close();
+    file.open(QIODevice::ReadOnly);
+    file.seek(0);
+    QString text = out.readAll();
+    qDebug() << text;
+    return text;
+}
+*/
 string ctunes::downloadSong(int code,string cliente){
     songsarchivo.seek(0);
     while (!songsarchivo.atEnd()) {
@@ -286,6 +224,3 @@ string ctunes::downloadSong(int code,string cliente){
     }
     return "no se encontro la cancion";
 }
-
-
-

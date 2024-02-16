@@ -30,7 +30,7 @@ background-color: rgb(170, 170, 127);
 </string>
     </property>
     <property name="currentIndex">
-     <number>1</number>
+     <number>4</number>
     </property>
     <widget class="QWidget" name="page_3">
      <widget class="QPushButton" name="pushButton_2">
@@ -605,7 +605,7 @@ selection-color: rgb(85, 85, 0);</string>
         <x>150</x>
         <y>240</y>
         <width>551</width>
-        <height>111</height>
+        <height>61</height>
        </rect>
       </property>
      </widget>
@@ -647,10 +647,10 @@ selection-color: rgb(85, 85, 0);</string>
        </rect>
       </property>
       <property name="text">
-       <string>Canción:</string>
+       <string>Archivo:</string>
       </property>
      </widget>
-     <widget class="QLineEdit" name="lineEdit_9">
+     <widget class="QLineEdit" name="archivo">
       <property name="geometry">
        <rect>
         <x>340</x>
@@ -658,6 +658,29 @@ selection-color: rgb(85, 85, 0);</string>
         <width>201</width>
         <height>21</height>
        </rect>
+      </property>
+     </widget>
+     <widget class="QTextBrowser" name="song_txt">
+      <property name="geometry">
+       <rect>
+        <x>245</x>
+        <y>140</y>
+        <width>361</width>
+        <height>231</height>
+       </rect>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="pushButton_16">
+      <property name="geometry">
+       <rect>
+        <x>390</x>
+        <y>410</y>
+        <width>80</width>
+        <height>24</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Ver</string>
       </property>
      </widget>
     </widget>
